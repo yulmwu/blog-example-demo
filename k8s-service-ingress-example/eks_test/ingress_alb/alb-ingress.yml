@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: app1-svc
+                port:
+                  number: 3000
+          - path: /v2
+            pathType: Prefix
+            backend:
+              service:
+                name: app2-svc
+                port:
+                  number: 3000

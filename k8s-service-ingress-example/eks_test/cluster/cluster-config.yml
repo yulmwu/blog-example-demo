@@ -1,0 +1,27 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eks-test
+  region: ap-northeast-2 
+  version: "1.33" # 표준 지원 기간 확인(넘어가면 추가 요금), 간단한 예제라 최신 버전으로
+
+vpc:
+  cidr: 10.0.0.0/16
+
+managedNodeGroups:
+  - name: ng-private
+    instanceTypes: ["t3.small"]
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 3
+    privateNetworking: true
+    labels: { nodegroup: private }
+
+  - name: ng-public
+    instanceTypes: ["t3.small"]
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 1
+    privateNetworking: false
+    labels: { nodegroup: public }

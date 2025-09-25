@@ -1,0 +1,20 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-fargate-demo
+  region: ap-northeast-2
+  version: "1.33"
+vpc:
+  cidr: "10.0.0.0/16"
+iam:
+  withOIDC: true
+fargateProfiles:
+  - name: default-fargate-profile
+    selectors:
+      - namespace: default
+      - namespace: kube-system
+  - name: apps-fargate-profile
+    selectors:
+      - namespace: apps
+        labels:
+          run: on-fargate

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: apps
+  labels:
+    run: on-fargate
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+      run: on-fargate
+  template:
+    metadata:
+      labels:
+        app: web
+        run: on-fargate
+    spec:
+      containers:
+        - name: nginx
+          image: public.ecr.aws/nginx/nginx:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512Mi"
+              ephemeral-storage: "10Gi"
+            limits:
+              cpu: "0.25"
+              memory: "512Mi"
+              ephemeral-storage: "10Gi"

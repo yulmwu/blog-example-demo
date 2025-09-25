@@ -1,0 +1,49 @@
+name: Deploy to EC2 with CodeDeploy
+
+on:
+  push:
+    branches: main
+
+jobs:
+  deploy:
+    name: Deploy CodeDeploy
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ap-northeast-2
+      S3_BUCKET: exam-codedeploy-bucket
+      S3_KEY: dist.zip
+      CODEDEPLOY_APP: ExamCodeDeployApp
+      CODEDEPLOY_GROUP: ExamDeploymentGroup
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Zip source code
+        run: |
+          zip -r dist.zip . -x '*.git*' -x 'node_modules/*'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Delete old artifact from S3
+        run: |
+          aws s3 rm s3://$S3_BUCKET/$S3_KEY || true
+
+      - name: Upload artifact to S3
+        run: |
+          aws s3 cp dist.zip s3://$S3_BUCKET/$S3_KEY
+
+      - name: CodeDeploy deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name $CODEDEPLOY_APP \
+            --deployment-group-name $CODEDEPLOY_GROUP \
+            --s3-location bucket=$S3_BUCKET,key=$S3_KEY,bundleType=zip \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --file-exists-behavior OVERWRITE

@@ -1,0 +1,22 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-demo
+  region: ap-northeast-2
+  version: "1.33"
+vpc:
+  cidr: 10.1.0.0/16
+  nat:
+    gateway: Single # NAT Gateway
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.medium
+    desiredCapacity: 2
+    privateNetworking: true
+    iam:
+      withAddonPolicies:
+        ebs: true
+addons:
+  - name: vpc-cni
+  - name: kube-proxy
+  - name: coredns

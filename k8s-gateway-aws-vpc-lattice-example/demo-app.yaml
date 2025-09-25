@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-app-a
+  template:
+    metadata:
+      labels:
+        app: demo-app-a
+    spec:
+      containers:
+        - name: demo-app-a
+          image: rlawnsdud/demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+            - name: POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ROUTE
+              value: "v1"
+            - name: GLOBAL_PREFIX
+              value: "/v1"
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-a
+spec:
+  selector:
+    app: demo-app-a
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-app-b
+  template:
+    metadata:
+      labels:
+        app: demo-app-b
+    spec:
+      containers:
+        - name: demo-app-b
+          image: rlawnsdud/demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+            - name: POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ROUTE
+              value: "v2"
+            - name: GLOBAL_PREFIX
+              value: "/v2"
+          readinessProbe:
+            httpGet:
+              path: /v2/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v2/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-b
+spec:
+  selector:
+    app: demo-app-b
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

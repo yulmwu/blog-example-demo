@@ -1,0 +1,43 @@
+apiVersion: application-networking.k8s.aws/v1alpha1
+kind: TargetGroupPolicy
+metadata:
+  name: tg-policy-demo-app-a
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: demo-app-a
+  protocol: HTTP
+  protocolVersion: HTTP1
+  healthCheck:
+    enabled: true
+    path: "/v1/health"
+    port: 3000
+    protocol: HTTP
+    protocolVersion: HTTP1
+    intervalSeconds: 10
+    timeoutSeconds: 5
+    healthyThresholdCount: 3
+    unhealthyThresholdCount: 3
+---
+apiVersion: application-networking.k8s.aws/v1alpha1
+kind: TargetGroupPolicy
+metadata:
+  name: tg-policy-demo-app-b
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: demo-app-b
+  protocol: HTTP
+  protocolVersion: HTTP1
+  healthCheck:
+    enabled: true
+    path: "/v2/health"
+    port: 3000
+    protocol: HTTP
+    protocolVersion: HTTP1
+    intervalSeconds: 10
+    timeoutSeconds: 5
+    healthyThresholdCount: 3
+    unhealthyThresholdCount: 3
