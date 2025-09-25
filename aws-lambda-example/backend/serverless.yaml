@@ -1,0 +1,216 @@
+service: acinside-sl-backend
+
+provider:
+    name: aws
+    runtime: nodejs20.x
+    region: ap-northeast-2
+    memorySize: 128
+    timeout: 10
+    stage: prod
+    environment:
+        COGNITO_CLIENT_ID: !Ref CognitoClient
+        COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+        AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID}
+    httpApi:
+        name: acinside-sl-api
+        cors:
+            allowedOrigins:
+                - https://d1kuxh5767o4hm.cloudfront.net
+            allowedHeaders:
+                - Content-Type
+                - Authorization
+                - X-Requested-With
+                - X-Csrf-Token
+                - Set-Cookie
+            allowedMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - PATCH
+                - HEAD
+                - OPTIONS
+            maxAge: 86400 # 1 day
+            allowCredentials: true
+        authorizers:
+            cognitoAuthorizer:
+                type: jwt
+                identitySource: '$request.header.Authorization'
+                issuerUrl: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPool}"
+                audience: !Ref CognitoClient
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                      - dynamodb:PutItem # Create
+                      - dynamodb:GetItem # Read
+                      - dynamodb:Scan # Read(all)
+                      - dynamodb:Query # Read
+                      - dynamodb:UpdateItem # Update
+                      - dynamodb:DeleteItem # Delete
+                  Resource:
+                      - !GetAtt PostsTable.Arn
+                      - !GetAtt CounterTable.Arn
+
+functions:
+    acinsideSL_ConfirmEmail:
+        handler: dist/functions/auth/confirmEmail.handler
+        events:
+            - httpApi:
+                  path: /auth/confirmEmail
+                  method: post
+
+    acinsideSL_Login:
+        handler: dist/functions/auth/login.handler
+        events:
+            - httpApi:
+                  path: /auth/login
+                  method: post
+
+    acinsideSL_Logout:
+        handler: dist/functions/auth/logout.handler
+        events:
+            - httpApi:
+                  path: /auth/logout
+                  method: post
+
+    acinsideSL_ResendEmail:
+        handler: dist/functions/auth/resendEmail.handler
+        events:
+            - httpApi:
+                  path: /auth/resendEmail
+                  method: post
+
+    acinsideSL_Signup:
+        handler: dist/functions/auth/signup.handler
+        events:
+            - httpApi:
+                  path: /auth/signup
+                  method: post
+
+    acinsideSL_RefreshToken:
+        handler: dist/functions/auth/refresh.handler
+        events:
+            - httpApi:
+                  path: /auth/refresh
+                  method: post
+
+    acinsideSL_CreatePost:
+        handler: dist/functions/post/createPost.handler
+        events:
+            - httpApi:
+                  path: /posts
+                  method: post
+                  authorizer: cognitoAuthorizer
+
+    acinsideSL_DeletePost:
+        handler: dist/functions/post/deletePost.handler
+        events:
+            - httpApi:
+                  path: /posts/{id}
+                  method: delete
+                  authorizer: cognitoAuthorizer
+
+    acinsideSL_UpdatePost:
+        handler: dist/functions/post/updatePost.handler
+        events:
+            - httpApi:
+                  path: /posts/{id}
+                  method: put
+                  authorizer: cognitoAuthorizer
+
+    acinsideSL_GetPost:
+        handler: dist/functions/post/getPost.handler
+        events:
+            - httpApi:
+                  path: /posts/{id}
+                  method: get
+
+    acinsideSL_GetPosts:
+        handler: dist/functions/post/getPosts.handler
+        events:
+            - httpApi:
+                  path: /posts
+                  method: get
+
+    acinsideSL_MyInfo:
+        handler: dist/functions/user/myInfo.handler
+        events:
+            - httpApi:
+                  path: /myinfo
+                  method: get
+                  authorizer: cognitoAuthorizer
+
+resources:
+    Resources:
+        CognitoUserPool:
+            Type: AWS::Cognito::UserPool
+            DeletionPolicy: Retain
+            UpdateReplacePolicy: Retain
+            Properties:
+                UserPoolName: acinside-cognito-user-pool
+                AutoVerifiedAttributes:
+                    - email
+                Schema:
+                    - Name: email
+                      Required: true
+                UserPoolTier: LITE
+
+        CognitoClient:
+            Type: AWS::Cognito::UserPoolClient
+            Properties:
+                ClientName: acinside-cognito-client
+                UserPoolId: !Ref CognitoUserPool
+                ExplicitAuthFlows:
+                    - USER_PASSWORD_AUTH
+
+        PostsTable:
+            Type: AWS::DynamoDB::Table
+            DeletionPolicy: Retain
+            UpdateReplacePolicy: Retain
+            Properties:
+                TableName: Posts
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
+
+        CounterTable:
+            Type: AWS::DynamoDB::Table
+            DeletionPolicy: Retain
+            UpdateReplacePolicy: Retain
+            Properties:
+                TableName: Counter
+                AttributeDefinitions:
+                    - AttributeName: name
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: name
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
+
+plugins:
+    - serverless-esbuild
+    - serverless-prune-plugin
+
+custom:
+    esbuild:
+        bundle: true
+        minify: true
+        sourcemap: false
+        target: 'node20'
+        platform: 'node'
+        concurrency: 10
+        treeShaking: true
+        packager: npm
+        format: 'cjs'
+    prune:
+        automatic: true
+        number: 1
+
+package:
+    individually: true
