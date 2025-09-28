@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: myapp
+          image: rlawnsdud/demo:arm
+          ports:
+            - containerPort: 8080
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8080"
+            - name: POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "[ -f /data/test.txt ]"]
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "[ -f /data/test.txt ]"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+      volumes:
+        - name: data
+          emptyDir: {}
+          
