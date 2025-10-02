@@ -20,3 +20,4 @@
 | [AWS EKS Fargate Example](./aws-eks-fargate-example) | [[Kubernetes] [EKS] EKS Fargate Cluster](https://velog.io/@yulmwu/kubernetes-eks-fargate) | 2025/09/23 | [(aws-eks-fargate-example)](https://github.com/eocndp/aws-eks-fargate-example) |
 | [Kubernetes Readiness and Liveness Probe Example](./k8s-probe-example) | [[Kubernetes] Pod Health Check with Readiness, Liveness Probes (Feat. Pod Lifecycle)](https://velog.io/@yulmwu/kubernetes-pod-probe) | 2025/09/28 | |
 | [Kubernetes Operator Example](./k8s-operator-example/) | [[Kubernetes] Operator Pattern, Implemented using the Go language and Operator SDK](https://velog.io/@yulmwu/kubernetes-operator) | 2025/10/01 | |
+| [Kubernetes Sealed Secrets Example](./k8s-sealed-secrets-example/) | [[Kubernetes] Secret encryption with Sealed Secrets](https://velog.io/@yulmwu/kubernetes-sealed-secrets) | 2025/10/02 | |
