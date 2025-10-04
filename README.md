@@ -21,3 +21,4 @@
 | [Kubernetes Readiness and Liveness Probe Example](./k8s-probe-example) | [[Kubernetes] Pod Health Check with Readiness, Liveness Probes (Feat. Pod Lifecycle)](https://velog.io/@yulmwu/kubernetes-pod-probe) | 2025/09/28 | |
 | [Kubernetes Operator Example](./k8s-operator-example/) | [[Kubernetes] Operator Pattern, Implemented using the Go language and Operator SDK](https://velog.io/@yulmwu/kubernetes-operator) | 2025/10/01 | |
 | [Kubernetes Sealed Secrets Example](./k8s-sealed-secrets-example/) | [[Kubernetes] Secret encryption with Sealed Secrets](https://velog.io/@yulmwu/kubernetes-sealed-secrets) | 2025/10/02 | |
+| [Kubernetes GitOps with ArgoCD and Kustomize Example](./k8s-argocd-example/) | [[Kubernetes] GitOps with ArgoCD and Demo](https://velog.io/@yulmwu/kubernetes-gitops-argocd) | 2025/10/04 | |
