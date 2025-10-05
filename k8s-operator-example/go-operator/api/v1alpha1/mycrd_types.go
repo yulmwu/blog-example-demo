@@ -1,4 +1,3 @@
-// api/v1alpha1/mycrd_types.go
 package v1alpha1
 
 import (
@@ -7,25 +6,28 @@ import (
 
 // MyCRDSpec defines the desired state of MyCRD
 type MyCRDSpec struct {
-	// +kubebuilder:validation:MinLength=1
-	// 사용자가 넣는 메시지
-	Message string `json:"message,omitempty"`
+	// 유지하고 싶은 파드 수 (Deployment replicas)
+	// +optional
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// 컨테이너 이미지 (기본값: nginx:1.25.3)
+	// +optional
+	Image string `json:"image,omitempty"`
 }
 
 // MyCRDStatus defines the observed state of MyCRD
 type MyCRDStatus struct {
-	// 생성/동기화한 ConfigMap 이름
-	ConfigMapName string `json:"configMapName,omitempty"`
-	// 관측한 세대 (메타데이터 generation을 상태에 반영)
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+	// 현재 가용(Ready) 파드 수
+	// +optional
+	AvailableReplicas int32 `json:"availableReplicas,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:scope=Namespaced,shortName=myc
-// +kubebuilder:printcolumn:name="Message",type=string,JSONPath=`.spec.message`
-// +kubebuilder:printcolumn:name="ConfigMap",type=string,JSONPath=`.status.configMapName`
-
+// +kubebuilder:resource:shortName=myc
+// +kubebuilder:printcolumn:name="Desired",type=integer,JSONPath=`.spec.replicas`,description="Desired replicas",priority=0
+// +kubebuilder:printcolumn:name="Available",type=integer,JSONPath=`.status.availableReplicas`,description="Available replicas",priority=0
+// +kubebuilder:printcolumn:name="Image",type=string,JSONPath=`.spec.image`,description="Container image",priority=1
 type MyCRD struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -36,6 +38,7 @@ type MyCRD struct {
 
 // +kubebuilder:object:root=true
 
+// MyCRDList contains a list of MyCRD
 type MyCRDList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	appsv1alpha1 "testoperator/api/v1alpha1"
+	demov1alpha1 "mycrd-operator/api/v1alpha1"
 )
 
 var _ = Describe("MyCRD Controller", func() {
@@ -40,13 +40,13 @@ var _ = Describe("MyCRD Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		mycrd := &appsv1alpha1.MyCRD{}
+		mycrd := &demov1alpha1.MyCRD{}
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind MyCRD")
 			err := k8sClient.Get(ctx, typeNamespacedName, mycrd)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &appsv1alpha1.MyCRD{
+				resource := &demov1alpha1.MyCRD{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,7 +59,7 @@ var _ = Describe("MyCRD Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &appsv1alpha1.MyCRD{}
+			resource := &demov1alpha1.MyCRD{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 

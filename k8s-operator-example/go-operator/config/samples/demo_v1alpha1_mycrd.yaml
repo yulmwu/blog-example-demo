@@ -1,0 +1,8 @@
+apiVersion: demo.example.com/v1alpha1
+kind: MyCRD
+metadata:
+  name: mycrd-sample
+  namespace: default
+spec:
+  replicas: 1
+  image: nginx:1.25.3

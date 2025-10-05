@@ -1,4 +1,4 @@
 ## Append samples of your project ##
 resources:
-- apps_v1alpha1_mycrd.yaml
+- demo_v1alpha1_mycrd.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

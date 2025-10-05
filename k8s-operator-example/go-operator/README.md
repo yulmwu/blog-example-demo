@@ -97,7 +97,7 @@ kubectl apply -f https://raw.githubusercontent.com/<org>/go-operator/<tag or bra
 1. Build the chart using the optional helm plugin
 
 ```sh
-kubebuilder edit --plugins=helm/v1-alpha
+operator-sdk edit --plugins=helm/v1-alpha
 ```
 
 2. See that a chart was generated under 'dist/chart', and users
