@@ -1,0 +1,32 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: myapp-route
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: demo-gw
+  hostnames: ["*"]
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    timeouts:
+      request: 10s
+    backendRefs:
+    - name: myapp-v1
+      port: 80
+      weight: 80
+    - name: myapp-v2
+      port: 80
+      weight: 20
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+          - name: X-Mesh
+            value: istio
+        set:
+          - name: X-Canary
+            value: "v2-20%"

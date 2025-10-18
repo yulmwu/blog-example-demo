@@ -1,0 +1,19 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio-gwapi
+spec:
+  profile: default
+  meshConfig:
+    enableTracing: false
+    accessLogFile: /dev/stdout
+  values:
+    gateways:
+      istio-ingressgateway:
+        type: LoadBalancer
+        serviceAnnotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+          service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    pilot:
+      env:
+        PILOT_ENABLE_GATEWAY_API: "true"
