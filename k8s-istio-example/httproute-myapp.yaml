@@ -5,7 +5,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: demo-gw
+    name: istio-gwapi
   hostnames: ["*"]
   rules:
   - matches:

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: myapp-v1
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: myapp
@@ -45,7 +45,7 @@ kind: Deployment
 metadata:
   name: myapp-v2
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: myapp
@@ -87,7 +87,7 @@ kind: Deployment
 metadata:
   name: otherapp
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: otherapp
