@@ -6,7 +6,6 @@ spec:
   parentRefs:
   - kind: Gateway
     name: istio-gwapi
-  hostnames: ["*"]
   rules:
   - matches:
     - path:

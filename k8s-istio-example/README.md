@@ -9,6 +9,13 @@ kubectl get svc -n istio-system istio-ingressgateway -w
 ```
 
 ```shell
+kubectl get crd | rg gateway.networking.k8s.io || true
+# if not found, run:
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
+kubectl get crd gateways.gateway.networking.k8s.io httproutes.gateway.networking.k8s.io
+```
+
+```shell
 kubectl create ns demo
 kubectl label ns demo istio-injection=enabled
 ```
@@ -27,7 +34,7 @@ kubectl apply -n demo -f httproute-otherapp.yaml
 ```
 
 ```shell
-kubectl apply -n demo -f peer-authentication.yaml
+kubectl apply -n demo -f istio-peerauth-mtls.yaml
 ```
 
 ```shell

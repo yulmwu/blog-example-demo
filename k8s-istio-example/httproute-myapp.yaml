@@ -6,14 +6,11 @@ spec:
   parentRefs:
   - kind: Gateway
     name: istio-gwapi
-  hostnames: ["*"]
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /
-    timeouts:
-      request: 10s
     backendRefs:
     - name: myapp-v1
       port: 80
