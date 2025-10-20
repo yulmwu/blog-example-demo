@@ -1,7 +1,8 @@
 ```shell
 eksctl create cluster -f cluster.yaml
+aws eks update-kubeconfig --name eks-istio-demo --region ap-northeast-2
 ```
-
+    
 ```shell
 istioctl install -y -f istio-gwapi.yaml
 kubectl get svc -n istio-system istio-ingressgateway -w
