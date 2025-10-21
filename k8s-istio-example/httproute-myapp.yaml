@@ -26,4 +26,12 @@ spec:
             value: istio
         set:
           - name: X-Canary
-            value: "v2-20%"
+            value: "v2-20pct"
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+          - name: X-Mesh
+            value: istio
+        set:
+          - name: X-Canary
+            value: "v2-20pct"

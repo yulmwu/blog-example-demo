@@ -106,6 +106,8 @@ spec:
               value: "5678"
             - name: APP_NAME
               value: "otherapp"
+            - name: GLOBAL_PREFIX
+              value: "/other"
           ports:
             - containerPort: 5678
 ---

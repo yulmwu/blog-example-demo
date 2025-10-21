@@ -2,51 +2,45 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: ingress-local-ratelimit
-  namespace: istio-system
 spec:
   workloadSelector:
     labels:
-      istio: ingressgateway
+      app: otherapp
   configPatches:
-  - applyTo: HTTP_FILTER
-    match:
-      context: GATEWAY
-      listener:
-        filterChain:
-          filter:
-            name: envoy.filters.network.http_connection_manager
-            subFilter:
-              name: envoy.filters.http.router
-    patch:
-      operation: INSERT_BEFORE
-      value:
-        name: envoy.filters.http.local_ratelimit
-        typed_config:
-          "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
-          stat_prefix: http_local_rate_limiter
-          token_bucket:
-            max_tokens: 5
-            tokens_per_fill: 5
-            fill_interval: 1s
-          filter_enabled:
-            runtime_key: local_rate_limit_enabled
-            default_value:
-              numerator: 100
-              denominator: HUNDRED
-          filter_enforced:
-            runtime_key: local_rate_limit_enforced
-            default_value:
-              numerator: 100
-              denominator: HUNDRED
-          response_headers_to_add:
-          - header:
-              key: x-rate-limited-by
-              value: envoy-local
-          descriptors:
-          - entries:
-            - key: path
-              value: "/other"
-            token_bucket:
-              max_tokens: 10
-              tokens_per_fill: 10
-              fill_interval: 1s
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: http_local_rate_limiter
+              token_bucket:
+                max_tokens: 10
+                tokens_per_fill: 5
+                fill_interval: 60s
+              filter_enabled:
+                runtime_key: local_rate_limit_enabled
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              filter_enforced:
+                runtime_key: local_rate_limit_enforced
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              response_headers_to_add:
+                - append_action: APPEND_IF_EXISTS_OR_ADD
+                  header:
+                    key: x-rate-limited
+                    value: TOO_MANY_REQUESTS
+              status:
+                code: 429

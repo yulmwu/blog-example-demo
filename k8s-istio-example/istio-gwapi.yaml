@@ -10,10 +10,8 @@ spec:
   values:
     gateways:
       istio-ingressgateway:
-        type: LoadBalancer
-        serviceAnnotations:
-          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-          service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+        type: NodePort
+        enabled: true
     pilot:
       env:
         PILOT_ENABLE_GATEWAY_API: "true"
