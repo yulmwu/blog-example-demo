@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>WAS 상태 테스트</title>
+    </head>
+    <body>
+        <h2>입력값 저장 테스트</h2>
+        <input id="contentInput" type="text" placeholder="내용 입력" style="width: 300px" />
+        <button onclick="save()">저장</button>
+
+        <p id="saveResult" style="color: blue"></p>
+
+        <hr />
+
+        <h3>현재 WAS 인스턴스 정보</h3>
+        <pre id="instanceInfo" style="background: #f3f3f3; padding: 10px"></pre>
+
+        <h3>DB 연결 상태</h3>
+        <p id="dbStatus"></p>
+
+        <script>
+            async function loadInfo() {
+                const i = await fetch('/info').then((r) => r.json())
+                document.getElementById('instanceInfo').innerText = JSON.stringify(i, null, 2)
+            }
+
+            async function loadDBStatus() {
+                const s = await fetch('/db-status').then((r) => r.json())
+                document.getElementById('dbStatus').innerText =
+                    s.status === 'OK' ? 'DB 연결 정상' : 'DB 연결 오류: ' + s.message
+            }
+
+            async function save() {
+                const value = document.getElementById('contentInput').value
+
+                const res = await fetch('/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: value }),
+                })
+
+                const data = await res.json()
+                document.getElementById('saveResult').innerText = data.success
+                    ? '저장 성공'
+                    : '저장 실패: ' + data.message
+            }
+
+            loadInfo()
+            loadDBStatus()
+        </script>
+    </body>
+</html>
