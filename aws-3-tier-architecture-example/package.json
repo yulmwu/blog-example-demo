@@ -4,7 +4,8 @@
         "start": "node app.js",
         "pm2-start": "pm2 start app.js --name aws-3-tier-app",
         "pm2-stop": "pm2 stop aws-3-tier-app",
-        "pm2-restart": "pm2 restart aws-3-tier-app"
+        "pm2-restart": "pm2 restart aws-3-tier-app",
+        "pm2-log": "pm2 logs aws-3-tier-app"
     },
     "dependencies": {
         "body-parser": "^2.2.0",
