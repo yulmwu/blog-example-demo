@@ -2,12 +2,6 @@
 
 ```shell
 eksctl create cluster -f ca/cluster.yaml
-
-eksctl create iamserviceaccount \
-  --config-file=ca/cluster.yaml \
-  --include='kube-system/cluster-autoscaler' \
-  --approve
-
 aws eks update-kubeconfig --name ca-lab-eks
 ```
 
@@ -21,8 +15,8 @@ helm upgrade --install cluster-autoscaler autoscaler/cluster-autoscaler \
 ```
 
 ```shell
-kubectl apply -f common-deployment.yaml
-source ./measure-provisioning.sh
+kubectl apply -f common/deployment.yaml
+source ./common/measure-provisioning.sh
 ```
 
 # Karpenter
@@ -35,8 +29,8 @@ kubectl apply -f karpenter/nodepool-class.yaml
 ```
 
 ```shell
-kubectl apply -f common-deployment.yaml
-source ./measure-provisioning.sh
+kubectl apply -f common/deployment.yaml
+source ./common/measure-provisioning.sh
 ```
 
 

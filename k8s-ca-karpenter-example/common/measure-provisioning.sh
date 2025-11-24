@@ -3,7 +3,7 @@
 set -euo pipefail
 
 DEPLOYMENT_NAME="inflate"
-TARGET_REPLICAS="50"
+TARGET_REPLICAS="30"
 NAMESPACE="default"
 TIMEOUT="1200s"
 
