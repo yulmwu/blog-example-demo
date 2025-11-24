@@ -1,0 +1,22 @@
+awsRegion: ap-northeast-2
+cloudProvider: aws
+autoDiscovery:
+  clusterName: ca-lab-eks
+  tags:
+    - k8s.io/cluster-autoscaler/enabled
+    - k8s.io/cluster-autoscaler/ca-lab-eks
+rbac:
+  serviceAccount:
+    create: false
+    name: cluster-autoscaler
+image:
+  repository: registry.k8s.io/autoscaling/cluster-autoscaler
+  tag: v1.33.0
+extraArgs:
+  logtostderr: "true"
+  stderrthreshold: info
+  v: "4"
+  balance-similar-node-groups: "true"
+  skip-nodes-with-local-storage: "false"
+  skip-nodes-with-system-pods: "false"
+  expander: least-waste

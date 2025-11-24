@@ -1,0 +1,33 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: ca-lab-eks
+  region: ap-northeast-2
+  version: "1.33"
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: cluster-autoscaler
+        namespace: kube-system
+        labels:
+          app.kubernetes.io/name: cluster-autoscaler
+      wellKnownPolicies:
+        autoScaler: true
+managedNodeGroups:
+  - name: ca-ng
+    instanceType: t3.medium
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 3
+    privateNetworking: false
+    ssh:
+      enableSsm: true
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+    labels:
+      role: ca-ng
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/ca-lab-eks: "owned"

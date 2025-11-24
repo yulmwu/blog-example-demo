@@ -1,0 +1,26 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: karpenter-lab-eks
+  region: ap-northeast-2
+  version: "1.33"
+  tags:
+    karpenter.sh/discovery: karpenter-lab-eks
+iam:
+  withOIDC: true
+karpenter:
+  version: "1.8.1"
+  createServiceAccount: true
+  defaultInstanceProfile: "KarpenterNodeInstanceProfile"
+  withSpotInterruptionQueue: false
+managedNodeGroups:
+  - name: karpenter-system-ng
+    instanceType: t3.medium
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 3
+    privateNetworking: false
+    ssh:
+      enableSsm: true
+    labels:
+      role: karpenter-system-ng
