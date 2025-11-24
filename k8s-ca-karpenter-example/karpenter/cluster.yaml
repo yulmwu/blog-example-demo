@@ -8,11 +8,6 @@ metadata:
     karpenter.sh/discovery: karpenter-lab-eks
 iam:
   withOIDC: true
-karpenter:
-  version: "1.8.1"
-  createServiceAccount: true
-  defaultInstanceProfile: "KarpenterNodeInstanceProfile"
-  withSpotInterruptionQueue: false
 managedNodeGroups:
   - name: karpenter-system-ng
     instanceType: t3.medium
