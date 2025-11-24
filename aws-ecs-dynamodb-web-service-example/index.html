@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Fargate Status Dashboard</title>
+        <style>
+            body {
+                font-family: Arial;
+                margin: 40px;
+            }
+            h1 {
+                color: #3b82f6;
+            }
+            button {
+                padding: 12px 24px;
+                margin-right: 10px;
+                border: none;
+                background: #2563eb;
+                color: white;
+                border-radius: 6px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #1e40af;
+            }
+            #result {
+                margin-top: 25px;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                background: #f8fafc;
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Fargate App Dashboard</h1>
+
+        <button onclick="checkStatus()">Check Server Status</button>
+        <button onclick="checkDB()">Check DynamoDB</button>
+
+        <div id="result">결과가 여기에 표시됩니다…</div>
+
+        <script>
+            async function checkStatus() {
+                const res = await fetch('/status')
+                const data = await res.json()
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2)
+            }
+
+            async function checkDB() {
+                const res = await fetch('/db')
+                const data = await res.json()
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2)
+            }
+        </script>
+    </body>
+</html>
