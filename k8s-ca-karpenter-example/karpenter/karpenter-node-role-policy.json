@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "KarpenterNodeBasic",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer",
+                "ec2:DescribeInstances",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumes",
+                "ec2:AttachVolume",
+                "ec2:DetachVolume",
+                "ec2:DescribeInstanceAttribute",
+                "ssm:DescribeInstanceInformation",
+                "ssm:GetParameter",
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

@@ -8,10 +8,10 @@ spec:
   role: "eksctl-KarpenterNodeRole-karpenter-lab-eks"
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: karpenter-lab-eks
+        kubernetes.io/cluster/karpenter-lab-eks: shared
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: karpenter-lab-eks
+        kubernetes.io/cluster/karpenter-lab-eks: shared
   tags:
     Name: "karpenter-lab-eks-node"
 ---
