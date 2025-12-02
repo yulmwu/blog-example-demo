@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: k8s-client-demo
+  namespace: default
+spec:
+  serviceAccountName: foo
+  containers:
+    - name: k8s-client-demo
+      image: rlawnsdud/k8s-client-demo:latest
+      command: ["sleep", "3600"]

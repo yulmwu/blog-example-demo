@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: foo
+  namespace: default
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: foo-token
+  annotations:
+    kubernetes.io/service-account.name: foo
+type: kubernetes.io/service-account-token
