@@ -53,7 +53,7 @@ jobs:
 
       - name: Apply ArgoCD Application
         run: |
-          kubectl apply -f main/k8s-argocd-ci-example/argocd/application.yaml
+          kubectl apply -f k8s-argocd-ci-example/argocd/application.yaml
 
       - name: Wait for ArgoCD Application Sync & Healthy
         run: |
