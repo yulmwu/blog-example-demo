@@ -1,0 +1,3 @@
+```shell
+mv .github ../.github
+```
