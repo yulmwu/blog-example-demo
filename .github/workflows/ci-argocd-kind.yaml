@@ -17,10 +17,10 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
         with:
-          version: 'v1.33.0'
+          version: 'latest'
 
       - name: Set up kind
-        uses: helm/kind-action@v1.10.0
+        uses: helm/kind-action@v1
         with:
           cluster_name: argocd-ci-cluster
           kubectl_version: 'v1.33.0'
