@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/yulmwu/blog-example-demo.git
     targetRevision: main
-    path: main/k8s-argocd-ci-example/charts/demo-app
+    path: k8s-argocd-ci-example/charts/demo-app
     helm:
       releaseName: demo-app
   destination:
