@@ -3,3 +3,7 @@
 **/.DS_Store
 **/.env
 **/.env.local
+**/.terraform
+**/*.tfstate
+**/*.tfstate.backup
+**/*.terraform.lock.hcl
