@@ -1,0 +1,100 @@
+name: Terraform Apply (Approved Plan)
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan_run_id:
+        description: "Terraform Plan workflow run_id (approved)"
+        required: true
+permissions:
+  id-token: write # OIDC 토큰 발급 허용
+  contents: read
+  actions: read
+jobs:
+  terraform-apply:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    defaults:
+      run:
+        working-directory: terraform
+    steps: 
+      - name: Download tfplan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: /tmp/terraform-artifact
+          run-id: ${{ github.event.inputs.plan_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Read planned commit SHA
+        id: planmeta
+        run: echo "sha=$(cat /tmp/terraform-artifact/plan.sha)" >> $GITHUB_OUTPUT
+        working-directory: /
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.planmeta.outputs.sha }}
+
+      - name: Move artifacts to working directory
+        run: |
+          cp -a /tmp/terraform-artifact/. .
+
+      - name: Verify plan exists
+        run: |
+          ls -al .
+          test -f tfplan
+          test -f .terraform.lock.hcl
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::986129558966:role/github-actions-terraform
+          aws-region: ap-northeast-2  
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Cache Terraform Providers
+        uses: actions/cache@v4
+        with:
+          path: terraform/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('terraform/**/*.tf', 'terraform/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Terraform Init
+        run: terraform init -input=false -lockfile=readonly
+
+      - name: Terraform Apply (Approved Plan)
+        run: terraform apply -auto-approve tfplan -no-color
+
+      - name: Terraform Outputs
+        run: terraform output -json > tf-outputs.json
+
+      - name: Slack Notify (Apply)
+        if: success()
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"*Terraform Apply Completed*\nRepo: ${GITHUB_REPOSITORY}\nCommit: ${GITHUB_SHA}\nOutputs: \n\`\`\`$(cat tf-outputs.json)\`\`\`"
+            }" \
+            $SLACK_WEBHOOK_URL
+
+      - name: Slack Notify (Apply Failed)
+        if: failure()
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"*Terraform Apply Failed*\nCheck GitHub Actions logs.\"
+            }" \
+            $SLACK_WEBHOOK_URL

@@ -1,0 +1,64 @@
+name: Terraform CI/CD (Plan)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+permissions:
+  id-token: write # OIDC 토큰 발급 허용
+  contents: read
+jobs:
+  terraform-plan:
+    if: github.repository == 'yulmwu/terraform-ci-cd-example'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::986129558966:role/github-actions-terraform
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Cache Terraform Providers
+        uses: actions/cache@v4
+        with:
+          path: terraform/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('terraform/**/*.tf', 'terraform/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Save commit SHA
+        run: echo "${GITHUB_SHA}" > plan.sha
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan -input=false -no-color
+
+      - name: Debugging list files
+        run: ls -al .
+
+      - name: Upload tfplan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: |
+            terraform/tfplan
+            terraform/.terraform.lock.hcl
+            terraform/plan.sha
+          include-hidden-files: true
+          retention-days: 7
