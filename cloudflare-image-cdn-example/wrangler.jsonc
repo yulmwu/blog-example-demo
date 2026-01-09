@@ -1,0 +1,15 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "cloudflare-image-cdn-example",
+    "main": "src/index.js",
+    "compatibility_date": "2025-09-27",
+    "observability": {
+        "enabled": true
+    },
+    "r2_buckets": [
+        {
+            "binding": "IMAGES",
+            "bucket_name": "testbucket"
+        }
+    ]
+}
