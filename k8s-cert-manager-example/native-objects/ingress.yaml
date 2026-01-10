@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nlb-tls-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - a071b61083c384e84819a1d27f4050e9-433acf7b26e84c96.elb.ap-northeast-2.amazonaws.com
+    secretName: nlb-tls-secret
+  rules:
+  - host: a071b61083c384e84819a1d27f4050e9-433acf7b26e84c96.elb.ap-northeast-2.amazonaws.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: echo-svc
+            port:
+              number: 80
