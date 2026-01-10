@@ -18,7 +18,7 @@ const serveRawFromR2 = async (request, env, key) => {
     obj.writeHttpMetadata(headers)
     if (etag) headers.set('ETag', etag)
 
-    headers.set('Cache-Control', 'public, max-age=31536000')
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable')
 
     if (!headers.get('Content-Type')) {
         headers.set('Content-Type', 'application/octet-stream')
