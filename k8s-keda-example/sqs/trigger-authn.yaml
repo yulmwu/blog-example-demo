@@ -1,0 +1,8 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: aws-irsa-keda-operator
+spec:
+  podIdentity:
+    provider: aws
+    identityOwner: keda

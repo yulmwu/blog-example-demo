@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-worker
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: demo-worker
+  template:
+    metadata:
+      labels:
+        app: demo-worker
+    spec:
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
