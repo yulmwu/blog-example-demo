@@ -8,6 +8,8 @@ vpc:
   cidr: 10.1.0.0/16
   nat:
     gateway: Single
+iam:
+  withOIDC: true
 managedNodeGroups:
   - name: ng-1
     instanceType: t3.medium
