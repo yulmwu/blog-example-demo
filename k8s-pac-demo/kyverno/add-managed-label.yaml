@@ -1,0 +1,20 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-managed-label
+spec:
+  background: true
+  rules:
+    - name: add-managed-label-to-pods
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - demo-pac
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              policy.kyverno.io/managed: "true"

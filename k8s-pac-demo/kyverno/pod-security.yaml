@@ -1,0 +1,31 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-pod-security-baseline
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-seccomp-and-nonroot
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - demo-pac
+      validate:
+        message: "Pod must comply with Pod Security Baseline: seccompProfile set to RuntimeDefault, runAsNonRoot true, no privilege escalation, readOnlyRootFilesystem true, drop all capabilities."
+        pattern:
+          spec:
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
+            containers:
+              - securityContext:
+                  runAsNonRoot: true
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  capabilities:
+                    drop:
+                      - ALL

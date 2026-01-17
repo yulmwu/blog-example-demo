@@ -1,0 +1,53 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-quota-and-limitrange
+spec:
+  background: true
+  rules:
+    - name: gen-resourcequota
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+              names:
+                - demo-pac
+      generate:
+        apiVersion: v1
+        kind: ResourceQuota
+        name: demo-quota
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true
+        data:
+          spec:
+            hard:
+              pods: "20"
+              requests.cpu: "2"
+              requests.memory: "2Gi"
+              limits.cpu: "4"
+              limits.memory: "4Gi"
+    - name: gen-limitrange
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+              names:
+                - demo-pac
+      generate:
+        apiVersion: v1
+        kind: LimitRange
+        name: demo-limitrange
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true
+        data:
+          spec:
+            limits:
+              - type: Container
+                defaultRequest:
+                  cpu: "50m"
+                  memory: "64Mi"
+                default:
+                  cpu: "200m"
+                  memory: "256Mi"

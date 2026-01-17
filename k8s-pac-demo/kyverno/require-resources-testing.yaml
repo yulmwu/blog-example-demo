@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-resources-should-fail
+  namespace: demo-pac
+  labels:
+    app: no-resources-should-fail
+    owner: demo
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo hello; sleep 3600"]

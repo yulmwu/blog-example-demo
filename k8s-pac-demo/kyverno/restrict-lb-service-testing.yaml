@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-should-fail
+  namespace: demo-pac
+  labels:
+    app: lb-should-fail
+    owner: demo
+spec:
+  type: LoadBalancer
+  selector:
+    app: foo
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

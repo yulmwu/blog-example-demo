@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-bad-gk
+  namespace: demo-pac
+  labels:
+    app: web-bad-gk
+    owner: app-team
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest # disallowed 'latest' tag
+    ports:
+    - containerPort: 80
+  - name: sidecar
+    image: busybox # disallowed no tag/digest (defaults to 'latest')
+    command: ["sleep", "3600"]

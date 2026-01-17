@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-privileged
+  namespace: demo-pac
+  labels:
+    app: bad-privileged
+    owner: demo
+spec:
+  containers:
+  - name: pwn
+    image: busybox:1.36
+    command: ["sh","-c","id; sleep 3600"]
+    securityContext:
+      privileged: true # disallow privileged mode

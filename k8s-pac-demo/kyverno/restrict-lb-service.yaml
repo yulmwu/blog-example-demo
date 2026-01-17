@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-service-loadbalancer
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: block-loadbalancer-services
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+              namespaces:
+                - demo-pac
+      validate:
+        message: "LoadBalancer type Services are not allowed in this namespace."
+        pattern:
+          spec:
+            type: "!LoadBalancer"

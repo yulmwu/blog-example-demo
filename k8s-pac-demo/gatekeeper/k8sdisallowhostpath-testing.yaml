@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-hostpath
+  namespace: demo-pac
+  labels:
+    app: bad-hostpath
+    owner: demo
+spec:
+  volumes:
+    - name: host-root
+      hostPath:
+        path: /
+        type: Directory
+  containers:
+  - name: reader
+    image: busybox:1.36
+    command: ["sh","-c","ls -la /host || true; sleep 3600"]
+    volumeMounts:
+      - name: host-root
+        mountPath: /host # disallowed host path
