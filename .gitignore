@@ -7,3 +7,18 @@
 **/*.tfstate
 **/*.tfstate.backup
 **/*.terraform.lock.hcl
+
+# Java
+**/target
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+**/.idea
+**/*.iml
+**/.vscode
+**/.settings
+**/.project
+**/.classpath
+**/.factorypath
+
