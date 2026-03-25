@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hubble-flow-metrics
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: hubble-flow-metrics
+  namespaceSelector:
+    matchNames:
+      - observability
+  endpoints:
+    - port: prom
+      interval: 15s

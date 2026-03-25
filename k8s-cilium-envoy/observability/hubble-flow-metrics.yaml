@@ -1,0 +1,144 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hubble-flow-metrics
+  namespace: observability
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hubble-flow-metrics
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "namespaces", "nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hubble-flow-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hubble-flow-metrics
+subjects:
+  - kind: ServiceAccount
+    name: hubble-flow-metrics
+    namespace: observability
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubble-flow-metrics-config
+  namespace: observability
+data:
+  vector.toml: |
+    [sources.hubble_flows]
+    type = "file"
+    include = ["/var/run/cilium/hubble/events.log"]
+    read_from = "end"
+
+    [transforms.flow_json]
+    type = "remap"
+    inputs = ["hubble_flows"]
+    source = '''
+    . = parse_json!(.message)
+    '''
+
+    [transforms.http_only]
+    type = "filter"
+    inputs = ["flow_json"]
+    condition = 'exists(.flow.l7.http)'
+
+    [transforms.normalize_http]
+    type = "remap"
+    inputs = ["http_only"]
+    source = '''
+    http = .flow.l7.http
+    url = http.url ?? ""
+    path = replace(url, r"^https?://[^/]+", "")
+    path = split(path, "?")[0] ?? path
+    path = split(path, "#")[0] ?? path
+    if path == "" { path = "/" }
+    # Normalize numeric or UUID-like segments to reduce cardinality.
+    path = replace(path, r"/[0-9]+", "/{id}")
+    path = replace(path, r"/[0-9a-fA-F-]{8,}", "/{id}")
+
+    .method = http.method ?? "UNKNOWN"
+    .path_norm = path
+    .status_code = http.code ?? 0
+    .status_class = to_string((.status_code / 100) * 100) ?? "0"
+    '''
+
+    [transforms.log_to_metric]
+    type = "log_to_metric"
+    inputs = ["normalize_http"]
+    metrics = [
+      { type = "counter", name = "l7_http_requests_total", field = "1", tags = { method = ".method", path = ".path_norm", status_class = ".status_class" } }
+    ]
+
+    [sinks.prometheus]
+    type = "prometheus_exporter"
+    inputs = ["log_to_metric"]
+    address = "0.0.0.0:9598"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hubble-flow-metrics
+  namespace: observability
+  labels:
+    app: hubble-flow-metrics
+spec:
+  selector:
+    matchLabels:
+      app: hubble-flow-metrics
+  template:
+    metadata:
+      labels:
+        app: hubble-flow-metrics
+    spec:
+      serviceAccountName: hubble-flow-metrics
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: vector
+          image: timberio/vector:0.38.0-alpine
+          args: ["-c", "/etc/vector/vector.toml"]
+          ports:
+            - name: prom
+              containerPort: 9598
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vector
+            - name: hubble-export
+              mountPath: /var/run/cilium/hubble
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: hubble-flow-metrics-config
+        - name: hubble-export
+          hostPath:
+            path: /var/run/cilium/hubble
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubble-flow-metrics
+  namespace: observability
+  labels:
+    app: hubble-flow-metrics
+spec:
+  selector:
+    app: hubble-flow-metrics
+  ports:
+    - name: prom
+      port: 9598
+      targetPort: prom

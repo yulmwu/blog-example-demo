@@ -1,0 +1,48 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: cilium-chaining-eks
+  region: ap-northeast-2
+  version: "1.35"
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: aws-node
+        namespace: kube-system
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+
+vpc:
+  cidr: 10.50.0.0/16
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+managedNodeGroups:
+  - name: ng-workers
+    instanceType: m6i.large
+    desiredCapacity: 3
+    minSize: 3
+    maxSize: 6
+    volumeSize: 80
+    labels:
+      nodegroup: ng-workers
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        cloudWatch: true
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/cilium-chaining-eks: "owned"
+
+addons:
+  - name: vpc-cni
+    version: latest
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
