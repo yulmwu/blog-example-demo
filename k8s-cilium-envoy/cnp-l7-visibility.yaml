@@ -1,12 +1,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: l7-visibility-example
-  namespace: app
+  name: l7-visibility
+  namespace: poc
 spec:
   endpointSelector:
     matchLabels:
-      app: myapp
+      app: poc-app
   ingress:
     - fromEndpoints:
         - {}

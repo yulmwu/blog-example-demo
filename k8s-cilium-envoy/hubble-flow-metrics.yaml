@@ -60,26 +60,34 @@ data:
     inputs = ["http_only"]
     source = '''
     http = .flow.l7.http
-    url = http.url ?? ""
-    path = replace(url, r"^https?://[^/]+", "")
-    path = split(path, "?")[0] ?? path
-    path = split(path, "#")[0] ?? path
+    url = ""
+    url, err = to_string(http.url)
+    if err != null { url = "" }
+    path = url
+    parsed, err = parse_url(url)
+    if err == null && parsed.path != null {
+      path = parsed.path
+    }
+    path = split!(path, "?")[0]
+    path = split!(path, "#")[0]
     if path == "" { path = "/" }
+    path = to_string(path)
     # Normalize numeric or UUID-like segments to reduce cardinality.
-    path = replace(path, r"/[0-9]+", "/{id}")
-    path = replace(path, r"/[0-9a-fA-F-]{8,}", "/{id}")
+    path = replace(path, r'/[0-9]+', "/{id}")
+    path = replace(path, r'/[0-9a-fA-F-]{8,}', "/{id}")
 
-    .method = http.method ?? "UNKNOWN"
+    .method = to_string(http.method) ?? "UNKNOWN"
     .path_norm = path
-    .status_code = http.code ?? 0
-    .status_class = to_string((.status_code / 100) * 100) ?? "0"
+    .status_code = to_int(http.code) ?? 0
+    .status_class = if .status_code > 0 { to_string((.status_code / 100) * 100) } else { "0" }
+    .count = 1
     '''
 
     [transforms.log_to_metric]
     type = "log_to_metric"
     inputs = ["normalize_http"]
     metrics = [
-      { type = "counter", name = "l7_http_requests_total", field = "1", tags = { method = ".method", path = ".path_norm", status_class = ".status_class" } }
+      { type = "counter", name = "l7_http_requests_total", field = "count", tags = { method = "{{method}}", path = "{{path_norm}}", status_class = "{{status_class}}" } }
     ]
 
     [sinks.prometheus]

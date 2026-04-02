@@ -1,0 +1,53 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: api-allow-from-frontend
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: api
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/shop/sa/default"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/orders", "/payments"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: orders-allow-from-api
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: orders
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/shop/sa/default"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/orders"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: payments-allow-from-api
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: payments
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/shop/sa/default"]
+    to:
+    - operation:
+        methods: ["POST"]
+        paths: ["/pay"]

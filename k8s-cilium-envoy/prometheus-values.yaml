@@ -1,9 +1,24 @@
+grafana:
+  enabled: false
+
+alertmanager:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
 prometheus:
   prometheusSpec:
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector:
       matchLabels:
         release: kube-prometheus-stack
+    serviceMonitorNamespaceSelector:
+      matchLabels:
+        monitoring: "enabled"
     podMonitorSelectorNilUsesHelmValues: false
     podMonitorSelector:
       matchLabels:

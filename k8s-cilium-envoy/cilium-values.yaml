@@ -21,6 +21,7 @@ operator:
       labels:
         release: kube-prometheus-stack
 
+# Envoy as DaemonSet (node-wide)
 envoy:
   enabled: true
   prometheus:
@@ -29,30 +30,14 @@ envoy:
       enabled: true
       labels:
         release: kube-prometheus-stack
-  log:
-    format_json: |
-      {
-        "start_time": "%START_TIME%",
-        "method": "%REQ(:METHOD)%",
-        "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
-        "authority": "%REQ(:AUTHORITY)%",
-        "protocol": "%PROTOCOL%",
-        "response_code": "%RESPONSE_CODE%",
-        "response_flags": "%RESPONSE_FLAGS%",
-        "bytes_received": "%BYTES_RECEIVED%",
-        "bytes_sent": "%BYTES_SENT%",
-        "duration_ms": "%DURATION%",
-        "upstream_cluster": "%UPSTREAM_CLUSTER%",
-        "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
-        "route_name": "%ROUTE_NAME%"
-      }
 
+# Hubble + Flow Export
 hubble:
   enabled: true
   relay:
-    enabled: true
+    enabled: false
   ui:
-    enabled: true
+    enabled: false
   export:
     static:
       enabled: true
@@ -60,12 +45,6 @@ hubble:
   metrics:
     enableOpenMetrics: true
     enabled:
-      - dns
-      - drop
-      - tcp
-      - flow
-      - port-distribution
-      - icmp
       - httpV2:exemplars=true;labelsContext=source_namespace,source_workload,destination_namespace,destination_workload,traffic_direction
     serviceMonitor:
       enabled: true

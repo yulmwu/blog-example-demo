@@ -1,0 +1,212 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: shop
+spec:
+  endpointSelector: {}
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        k8s-app: kube-dns
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        k8s-app: coredns
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+      rules:
+        dns:
+        - matchPattern: "*"
+    - ports:
+      - port: "53"
+        protocol: TCP
+      rules:
+        dns:
+        - matchPattern: "*"
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-istiod
+  namespace: shop
+spec:
+  endpointSelector: {}
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: istio-system
+        k8s:app: istiod
+    toPorts:
+    - ports:
+      - port: "15010"
+        protocol: TCP
+      - port: "15012"
+        protocol: TCP
+      - port: "443"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: frontend-to-api
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: frontend-egress-to-api
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: frontend
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: api
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-to-orders
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: orders
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: api
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-egress-to-orders
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: orders
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-to-payments
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: payments
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: api
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-egress-to-payments
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: payments
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: orders-to-db
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: db
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: orders
+    toPorts:
+    - ports:
+      - port: "5432"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: orders-egress-to-db
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: orders
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: db
+    toPorts:
+    - ports:
+      - port: "5432"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: shop
+spec:
+  endpointSelector: {}
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: istio-system
+        k8s:app: prometheus
+    toPorts:
+    - ports:
+      - port: "15020"
+        protocol: TCP
+      - port: "15090"
+        protocol: TCP

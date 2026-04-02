@@ -1,0 +1,21 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-egress-fqdn
+  namespace: shop
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  egress:
+  - toFQDNs:
+    - matchName: api.stripe.com
+    - matchName: example.com
+    - matchPattern: "*.amazonaws.com"
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+    - ports:
+      - port: "80"
+        protocol: TCP
